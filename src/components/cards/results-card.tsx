@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { Copy, MoreHorizontal } from "lucide-react";
+import CopyToClipBoard from "../copy-to-clipboard";
 
 type Props = {
   imageUrl: string;
@@ -33,9 +34,12 @@ const ResultCard = ({ imageUrl, className }: Props) => {
         height={200}
       />
       <div className="absolute top-2 right-2 space-x-2">
-        <Button variant={"secondary"} size={"icon"} className="rounded-full">
-          <Copy />
-        </Button>
+        <CopyToClipBoard
+          valueToCopy={imageUrl}
+          size={"icon"}
+          variant={"secondary"}
+          className="rounded-full"
+        />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

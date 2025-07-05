@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { generatePlaceholderAction } from "./actions/generate-placeholder";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
@@ -20,14 +20,33 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { ScrollBar, ScrollArea } from "@/components/ui/scroll-area";
 import { ImageFile } from "@/lib/types";
 import ResultCard from "@/components/cards/results-card";
+import {
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+  FileInput,
+} from "@/components/inputs/file-upload";
+import {
+  CloudUpload,
+  LoaderCircle,
+  LoaderCircleIcon,
+  Paperclip,
+} from "lucide-react";
+import FileSvgDraw from "@/components/file-svg-draw";
 
 export default function Home() {
+  const [files, setFiles] = useState<File[] | null>(null);
   const [images, setImages] = useState<ImageFile[]>();
   const [results, setResults] = useState<string[] | undefined>();
+
+  const dropZoneConfig = {
+    maxFiles: 20,
+    maxSize: 1024 * 1024 * 4,
+    multiple: true,
+  };
 
   const form = useForm<CreatePlaceholderSchema>({
     resolver: zodResolver(createPlaceholderSchema),
@@ -36,18 +55,18 @@ export default function Home() {
     },
   });
 
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const target = e.target;
-    const filesList = target?.files ?? [];
+  const onFileChange = (imageFiles: File[] | null) => {
+    if (!imageFiles) return;
     const fileArray: ImageFile[] = [];
 
-    for (const file of filesList) {
+    for (const file of imageFiles) {
       const blobUrl = URL.createObjectURL(file);
 
       fileArray.push({ file, blobUrl });
     }
 
     setImages(fileArray);
+    setFiles(imageFiles);
     form.setValue("imageFiles", fileArray);
   };
 
@@ -71,6 +90,7 @@ export default function Home() {
         });
         form.reset();
         setImages([]);
+        setFiles(null);
       }
     },
   });
@@ -83,7 +103,7 @@ export default function Home() {
     <div className="w-full p-12 grid gap-12">
       {/* Upload Section */}
       <section className="w-full grid gap-6">
-        <Card>
+        <Card className="max-w-full overflow-hidden">
           <CardHeader>
             <CardTitle>Generate Image Placeholder</CardTitle>
           </CardHeader>
@@ -91,26 +111,48 @@ export default function Home() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="flex gap-6"
+                className="flex flex-col gap-6"
               >
-                <Input
-                  name="imageFiles"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={onFileChange}
-                />
+                <FileUploader
+                  value={files}
+                  onValueChange={onFileChange}
+                  dropzoneOptions={dropZoneConfig}
+                  className="relative bg-background rounded-lg p-2"
+                >
+                  <FileInput className="outline-dashed outline-1 outline-white">
+                    <div className="flex items-center justify-center flex-col pt-3 pb-4 w-full ">
+                      <FileSvgDraw />
+                    </div>
+                  </FileInput>
+                  <FileUploaderContent>
+                    {files &&
+                      files.length > 0 &&
+                      files.map((file, i) => (
+                        <FileUploaderItem key={i} index={i}>
+                          <Paperclip className="h-4 w-4 stroke-current" />
+                          <span>{file.name}</span>
+                        </FileUploaderItem>
+                      ))}
+                  </FileUploaderContent>
+                </FileUploader>
                 <Button
                   type="submit"
                   disabled={isPending || !images || images?.length < 1}
                 >
-                  Generate
+                  {isPending ? (
+                    <p className="flex justify-center items-center gap-1">
+                      <span>Generating...</span>
+                      <LoaderCircle className="animate-spin" />
+                    </p>
+                  ) : (
+                    "Generate"
+                  )}
                 </Button>
               </form>
             </Form>
           </CardContent>
-          {(images && images?.length > 0) ? (
-            <CardFooter className="max-w-full overflow-hidden">
+          {images && images?.length > 0 ? (
+            <CardFooter>
               <ScrollArea className="w-full rounded-md border whitespace-nowrap">
                 <div className="flex gap-4 p-3">
                   {images?.map((image) => {
