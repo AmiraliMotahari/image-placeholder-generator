@@ -1,6 +1,9 @@
 "use server";
 
+import { formattedResetTimestamp } from "@/lib/formatter";
 import { generateBlurDataFromFile } from "@/lib/image-placeholder";
+import { getClientIp } from "@/lib/ip";
+import { rateLimit } from "@/lib/redis";
 import { actionClient } from "@/lib/safe-actions";
 import {
   CreatePlaceholderSchema,
@@ -16,16 +19,26 @@ export const generatePlaceholderAction = actionClient
   })
   .action(
     async ({ parsedInput: data }: { parsedInput: CreatePlaceholderSchema }) => {
+      const ip = await getClientIp();
+
+      // 1) Check the rate-limit
+      const { success, reset } = await rateLimit.limit(ip);
+
+      if (!success) {
+        // 2) If over limit, throw a controlled error
+        throw new Error(
+          `Rate limit exceeded. Try again in ${formattedResetTimestamp(reset)}.`
+        );
+      }
+
       const images = data.imageFiles;
 
       const results = await Promise.all(
-        images.map(async(image) => {
+        images.map(async (image) => {
           return await generateBlurDataFromFile(image.file);
         })
       );
 
-      console.log(results);
-      
       return {
         message: "Placeholders generated successfully.",
         results,
