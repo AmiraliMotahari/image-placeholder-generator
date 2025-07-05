@@ -1,16 +1,5 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "../ui/button";
-import { Copy, MoreHorizontal } from "lucide-react";
 import CopyToClipBoard from "../copy-to-clipboard";
 
 type Props = {

@@ -30,10 +30,7 @@ import {
   FileInput,
 } from "@/components/inputs/file-upload";
 import {
-  CloudUpload,
   LoaderCircle,
-  LoaderCircleIcon,
-  Paperclip,
 } from "lucide-react";
 import FileSvgDraw from "@/components/file-svg-draw";
 import { DropzoneOptions } from "react-dropzone";
