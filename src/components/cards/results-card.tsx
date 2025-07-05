@@ -22,7 +22,7 @@ const ResultCard = ({ imageUrl, className }: Props) => {
   return (
     <div
       className={cn(
-        "size-[200px] aspect-square relative rounded-lg overflow-hidden",
+        "size-[200px] aspect-square relative rounded overflow-hidden",
         className
       )}
     >
@@ -40,7 +40,7 @@ const ResultCard = ({ imageUrl, className }: Props) => {
           variant={"secondary"}
           className="rounded-full"
         />
-        <DropdownMenu>
+        {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant={"secondary"}
@@ -58,7 +58,7 @@ const ResultCard = ({ imageUrl, className }: Props) => {
             <DropdownMenuItem>Team</DropdownMenuItem>
             <DropdownMenuItem>Subscription</DropdownMenuItem>
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu> */}
       </div>
     </div>
   );
